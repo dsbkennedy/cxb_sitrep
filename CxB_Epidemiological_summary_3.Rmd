@@ -87,7 +87,7 @@ Testing<- gsheet_data$testing
 
 # Manually load in the UNHCR data on population 
 #population<-read_excel("Data/20200630_population_FDMN.xlsx")
-
+population <- read.csv(here('data', 'camp_population.csv'))
 ```
 
 ```{r, include=FALSE, message = FALSE}
@@ -608,7 +608,8 @@ Sum_tab_Severity2
 
 There are 20 sentinel sites at which testing for `r params$organism` is available as of **`r format(Sys.time(), '%d %B, %Y')`** across Cox's Bazar
 
-```{r}
+<!--
+```{r eval=FALSE, include=FALSE}
 CasesCampTable<-CasesCamp[order(-CasesCamp$count), ]
 
 CasesCampTable<-flextable(CasesCampTable)
@@ -621,7 +622,7 @@ CasesCamp<- FDMN_Only %>%
 
 # Remove the word "camp" from the population data to allow merges
 population<-population %>%
-  mutate(camp_of_residence = gsub("Camp", "", New_Camp_Name))
+  mutate(camp_of_residence = gsub("Camp", "", location))
 
 #triming white space in the dataframe
 population$camp_of_residence<-trimws(population$camp_of_residence, which = c("both", "left", "right"), whitespace = "[ \t\r\n]")
@@ -656,13 +657,17 @@ Table_AttackRates<-autofit(Table_AttackRates) %>%
 Table_AttackRates<- fontsize(Table_AttackRates, size = 10, part="all") 
 Table_AttackRates<-autofit(Table_AttackRates)
 
-```
 
 Figure 3: Cases and rates per 100,000 by reported camp of residence as of **`r format(Sys.time(), '%d %B, %Y')`**
 <br>
 <br>
 `r Table_AttackRates`
 
+```
+
+
+
+--->
 
 # Testing
 
