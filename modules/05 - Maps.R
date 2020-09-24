@@ -69,7 +69,9 @@ CasesCamp<- FDMN_Only %>%
 
 # Remove the word "camp" from the population data to allow merges
 population<-population %>%
-  mutate(camp_of_residence = gsub("Camp", "", New_Camp_Name))
+  mutate(camp_of_residence = gsub("Camp", "", New_Camp_Name)) %>% 
+  mutate(camp_of_residence=case_when(New_Camp_Name=='Camp 4 Extension' ~ '4 Ext', 
+                                     TRUE ~ camp_of_residence))
 
 #triming white space in the dataframe
 population$camp_of_residence<-trimws(population$camp_of_residence, which = c("both", "left", "right"), whitespace = "[ \t\r\n]")
@@ -129,11 +131,20 @@ ggplot(data = Map_Rates100kData$geometry) +
 # Map_Tests100kData<-
 #   left_join(TablePopOrdered, ARI_ILI_CampData,  by="New_Camp_N")
 
+TablePopOrdered_df <- TablePopOrdered %>% 
+  mutate(camp_key=stringr::str_remove(New_Camp_N, "^Camp 0+")) %>% 
+  mutate(camp_key=gsub('Camp ', '',camp_key)) %>% 
+  mutate(camp_key=case_when(camp_key=='20 Extension' ~ '20 Ext',
+                            camp_key=='4 Extension' ~ '4 ext',
+                            TRUE ~ camp_key))
+
 Map_Tests100kData <- ARI_ILI_CampTable %>% 
-  mutate(New_Camp_N=sub("0+", "", camp)) %>% 
+  mutate(camp_key=stringr::str_remove(camp, "^Camp 0+")) %>% 
+  mutate(camp_key=gsub('Camp ', '',camp_key)) %>% 
+  # mutate(New_Camp_N=sub("0+", "", camp)) %>% 
   ungroup() %>% 
-  select(New_Camp_N, tests=n) %>% 
-  left_join(TablePopOrdered,.,by="New_Camp_N") %>% 
+  select(camp_key, tests=n) %>% 
+  left_join(TablePopOrdered_df,.,by="camp_key") %>% 
   mutate(tests100k=tests/Total_Pop*100000) %>% 
   left_join(shp_file_host,.,by="New_Camp_N")
 
