@@ -32,8 +32,9 @@ CasesCamp<- FDMN_Only %>%
   group_by(camp_of_residence) %>%
   summarise(count=n())
 
-CasesCampVal<-unique(CasesCamp$camp_of_residence)
-length(CasesCampVal)
+#CasesCampVal<-unique(CasesCamp$camp_of_residence)
+#length(CasesCampVal)
+CasesCampVal <-  CasesCamp %>%  filter(!camp_of_residence=='Outside Camp') %>% pull(camp_of_residence)
 
 CampsWithCases<-length(CasesCampVal)
 

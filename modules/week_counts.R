@@ -23,6 +23,8 @@ cases_week_camp <- FDMN_Only %>%
   filter(Week %in% c(ThisWeek, LastWeek)) %>% 
   select(Week, camp_of_residence, cases=n) %>% clean_data()
 
+camps_to_include <- cases_week_camp %>% select(camp_of_residence) %>%  distinct() %>% pull(camp_of_residence)
+
 
 ## Tests by location
 library(linelist)
@@ -42,7 +44,8 @@ tests_week_camp <- ARI_ILI_df %>%
   mutate(camp_of_residence=sub("^0+", "", camp_of_residence)) %>% clean_data()
 
 camp_test_fortnight <- cases_week_camp %>% 
-  left_join(tests_week_camp, by=c('week','camp_of_residence')) %>% 
+  full_join(tests_week_camp, by=c('week','camp_of_residence')) %>% 
+  filter(camp_of_residence %in% camps_to_include) %>% 
   mutate(positivity=scales::percent(cases/tests,accuracy = .1)) %>% 
   arrange(week,camp_of_residence)
   
@@ -77,7 +80,35 @@ ThisWeek_CampFlex<- fontsize(ThisWeek_CampFlex, size = 10, part="all")
 ThisWeek_CampFlex_Report<-autofit(ThisWeek_CampFlex)
 
 
+###UPDATED TABLE WITH TWO WEEKS INCLUDED
 
+activity_2week_df <- cases_week_camp %>% 
+  full_join(tests_week_camp, by=c('week','camp_of_residence')) %>% 
+  filter(camp_of_residence %in% camps_to_include) %>% 
+  mutate(positivity=cases/tests) %>% 
+  #mutate(positivity=scales::percent(cases/tests,accuracy = .1)) %>% 
+  arrange(week,camp_of_residence) %>% 
+  pivot_longer(-c(week,camp_of_residence)) %>% 
+  replace_na(list(value=0)) %>% 
+  pivot_wider(id_cols=camp_of_residence, names_from=c(week,name), values_fill = 0) %>% 
+  mutate(camp_number=str_extract(camp_of_residence, "[[:digit:]]+")) %>% 
+  mutate(camp_number=as.numeric(camp_number)) %>% 
+  arrange(camp_number) %>% 
+  select(-camp_number) %>% 
+  clean_names() %>% 
+  mutate(x37_positivity=scales::percent(x37_positivity, accuracy=.1),
+         x38_positivity=scales::percent(x38_positivity, accuracy=.1))
+
+camp_test_fortnight_flex <- flextable(activity_2week_df) %>% 
+  autofit() %>% 
+  set_header_labels(camp_of_residence = "Camp",
+                    x37_cases = "Cases (Week 37)",
+                    x37_tests = "Tests (Week 37)",
+                    x37_positivity = "% positive (Week 37)",
+                    x38_cases = "Cases (Week 38)",
+                    x38_tests = "Tests (Week 38)",
+                    x38_positivity = "% positive (Week 38)") %>% 
+  bold(bold = TRUE, part = "header")
 
 # Test summary from last week ---------------------------------------------
 

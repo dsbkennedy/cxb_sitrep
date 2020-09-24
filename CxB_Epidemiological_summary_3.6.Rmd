@@ -58,24 +58,13 @@ library(purrr)
 library(scales)
 library(janitor)
 library(linelist)
+library(scales)
 
 
-
-#Automatic load in of the Google Docs line list 
-sheet_names <- c('fdmn', 'ari_ili', 'testing')
-gdrive_link <- "1Gnutu0OxxFJJq73KUzLQzHZHteFwpQP-B_tXct7OGwE"
-gs4_deauth()
-gsheet_data <- map(sheet_names, ~read_sheet(gdrive_link, sheet=.)) %>%  set_names(sheet_names)
-
-### FDMN
-FDMN_Only <- gsheet_data$fdmn
-### ARI/ILI
-ari_ili<- gsheet_data$ari_ili
-### Testing data
-Testing<- gsheet_data$testing
+source(here('modules', 'Login.R'))
 
 # Manually load in the UNHCR data on population 
-population<-read_excel("Data/20200630_population_FDMN.xlsx")
+population<-read_excel("data/20200630_population_FDMN.xlsx")
 
 #Define weeks
 ThisWeek<- isoweek(today()) -1
@@ -179,6 +168,7 @@ Epicurve<-
   labs(x = "Week", y = "Number of cases") +
   scale_fill_manual(values=c("#4472C4")) +
   coord_cartesian(xlim = c(min_week, ThisWeek))  +
+      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
   #scale_x_continuous(limits = c(min_week, ThisWeek)) %>% 
   #scale_x_continuous(limits=c(min_week, ThisWeek)) %>% 
  # ggtitle("Figure 1: Confirmed cases by specimen collection week (FDMN/ Rohingya Refugees)") + 
@@ -190,7 +180,7 @@ Epicurve
 
 # Summary of cases - week `r LastWeek` and week `r ThisWeek`
 
-* There have been **`r cases_week[2]`** new cases in the FDMN/Rohingya Refugee population in week `r ThisWeek`. In week (week `r LastWeek`) there were  **`r cases_week[1]`** cases.
+* There have been **`r cases_week[2]`** new cases in the FDMN/Rohingya Refugee population in week `r ThisWeek`. In week `r LastWeek` there were  **`r cases_week[1]`** cases.
 
 ## Age of cases
 * The median age of the cases this week (week `r ThisWeek`) was `r MedianAgeThisWeek` years old. 
@@ -203,8 +193,9 @@ Epicurve
 ## Location of cases
 
 
-* The following camps reported cases in week `r LastWeek` or `r ThisWeek` :
-<br>
+* The following camps reported cases in week `r LastWeek` or `r ThisWeek` 
+
+\newline
 
 
 ```{r}
@@ -212,10 +203,10 @@ camp_test_fortnight_flex %>%
   add_header_lines(., values = "Table 1: Number of cases, tests and % COVID-19 positive tests for camps reporting at least 1 case in the last 2 weeks")
 ```
 
-<!--`r camp_test_fortnight_flex` --->
+<!--`r camp_test_fortnight_flex` 
 <br>
 *This table includes only **positive** and **negative** results for weeks `r LastWeek` & `r ThisWeek`. Follow-up tests are not included.
-
+--->
 
 ## Testing - week `r LastWeek` & `r ThisWeek`
 
@@ -255,6 +246,7 @@ EpicurveSex<-
   theme(axis.text=element_text(size=8),
         axis.title=element_text(size=8,face="bold")) + 
     scale_fill_brewer(palette="Dark2", direction=-1) +
+      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
   labs(x = "Week", y = "Number of cases", fill='') +
   #ggtitle("Figure 2: Confirmed cases by specimen collection week (FDMN/ Rohingya Refugees) by sex") + 
   theme(plot.title = element_text(size=10))
@@ -343,6 +335,7 @@ SeverityEpicurve<-
   theme(axis.text.x = element_text(angle = 90)) +
   theme(axis.text=element_text(size=8),
         axis.title=element_text(size=8,face="bold")) +
+      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
   labs(x = "Week", y = "Number of cases", fill='Severity of disease at presentation') 
   #ggtitle("Figure 3: Confirmed cases last week by severity (FDMN/ Rohingya Refugees)") + theme(plot.title = element_text(size=10))
 
@@ -514,6 +507,7 @@ FDMN_Test_graph<-test_nationality %>%
   ggplot(., aes(x=week, y=value, fill=name_fac)) +
   geom_bar(stat="identity") +
       scale_fill_manual(values=c("#ED7D31","#4472C4")) +
+      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
   # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
   #              date_labels = '%d-%m') +
   labs(caption = "Data source: Cox’s Bazar - IEDCR Field Lab",
@@ -590,7 +584,7 @@ Patients may also present with diarrhoea, nausea, and vomiting.
 
 \newpage
 
-#### Appendix 1 - Tests & cases in Cox's Bazar host population
+##### Appendix 1 - Tests & cases in Cox's Bazar host population
 
 ``` {r}
 
@@ -622,6 +616,7 @@ Host_Test_graph <- test_nationality %>%
   ggplot(., aes(x=week, y=value, fill=name_fac)) +
   geom_bar(stat="identity") +
     scale_fill_manual(values=c("#ED7D31","#4472C4")) +
+      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
  # scale_x_continuous(limits=c(10,ThisWeek)) +
   # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
   #              date_labels = '%d-%m') +
@@ -636,7 +631,7 @@ Host_Test_graph
 
 
 
-#### Appendix 2 - Tests & cases in Bangladesh
+##### Appendix 2 - Tests & cases in Bangladesh
 
 
 ```{r}
@@ -682,6 +677,7 @@ bgd_graph <- bgd_data %>%
   ggplot(., aes(x=week, y=as.numeric(value), fill=name_fac)) +
   geom_bar(stat="identity") +
       scale_fill_manual(values=c("#ED7D31","#4472C4")) +
+      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
   # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
   #              date_labels = '%d-%m', limits=c(ymd('2020-03-17'), today())) +
   labs(caption = "Data source: IEDCR (https://covid19bd.idare.io/)",
@@ -695,7 +691,7 @@ bgd_graph
 
 \newpage
 
-#### Appendix 3 - Cases per 100,000 by household location
+##### Appendix 3 - Cases per 100,000 by household location
 
 
 ```{r, fig.height=10}
@@ -704,7 +700,7 @@ cases_map
 
 \newpage
 
-#### Appendix 4 - Tests per 100,000 by household location
+##### Appendix 4 - Tests per 100,000 by household location
 
 
 ```{r, fig.height=10}
