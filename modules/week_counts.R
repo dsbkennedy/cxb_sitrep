@@ -82,6 +82,9 @@ ThisWeek_CampFlex_Report<-autofit(ThisWeek_CampFlex)
 
 ###UPDATED TABLE WITH TWO WEEKS INCLUDED
 
+this_week_col <- paste0('x_', ThisWeek, '_positivity')
+last_week_col <- paste0('x_', LastWeek, '_positivity')
+
 activity_2week_df <- cases_week_camp %>% 
   full_join(tests_week_camp, by=c('week','camp_of_residence')) %>% 
   filter(camp_of_residence %in% camps_to_include) %>% 
@@ -96,18 +99,26 @@ activity_2week_df <- cases_week_camp %>%
   arrange(camp_number) %>% 
   select(-camp_number) %>% 
   clean_names() %>% 
-  mutate(x37_positivity=scales::percent(x37_positivity, accuracy=.1),
-         x38_positivity=scales::percent(x38_positivity, accuracy=.1))
+    #mutate(across(contains('positivity'), percent(.,accuracy=.1)))
+  mutate(x38_positivity=scales::percent(x38_positivity, accuracy=.1),
+         x39_positivity=scales::percent(x39_positivity, accuracy=.1))
+  
+  
+  # activity_2week_df %>% 
+  # clean_names() %>% 
+  #   mutate(across(contains('positivity'), percent(.,accuracy=.1)))
+  # mutate(3=scales::percent(3, accuracy=.1),
+  #        6=scales::percent(6, accuracy=.1))
 
 camp_test_fortnight_flex <- flextable(activity_2week_df) %>% 
   autofit() %>% 
   set_header_labels(camp_of_residence = "Camp",
-                    x37_cases = "Cases (Week 37)",
-                    x37_tests = "Tests (Week 37)",
-                    x37_positivity = "% positive (Week 37)",
                     x38_cases = "Cases (Week 38)",
                     x38_tests = "Tests (Week 38)",
-                    x38_positivity = "% positive (Week 38)") %>% 
+                    x38_positivity = "% positive (Week 38)",
+                    x39_cases = "Cases (Week 39)",
+                    x39_tests = "Tests (Week 39)",
+                    x39_positivity = "% positive (Week 39)") %>% 
   bold(bold = TRUE, part = "header")
 
 # Test summary from last week ---------------------------------------------

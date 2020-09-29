@@ -71,6 +71,7 @@ CasesCamp<- FDMN_Only %>%
 population<-population %>%
   mutate(camp_of_residence = gsub("Camp", "", New_Camp_Name)) %>% 
   mutate(camp_of_residence=case_when(New_Camp_Name=='Camp 4 Extension' ~ '4 Ext', 
+                                     New_Camp_Name=='Camp 20 Extension' ~ '20 Ext', 
                                      TRUE ~ camp_of_residence))
 
 #triming white space in the dataframe
@@ -90,7 +91,7 @@ TablePopOrdered$New_Camp_N<-TablePopOrdered$New_Camp_Name
   #TablePopOrdered<-TablePopOrdered[-2]
 
 Map_Rates100kData<-
-  left_join(shp_file_host, TablePopOrdered, by="New_Camp_N")
+  full_join(shp_file_host, TablePopOrdered, by="New_Camp_N")
 
 # my_spfd<-
 #   readOGR(
