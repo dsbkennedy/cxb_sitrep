@@ -29,7 +29,7 @@ camps_to_include <- cases_week_camp %>% select(camp_of_residence) %>%  distinct(
 ## Tests by location
 library(linelist)
 ARI_ILI_df <-ari_ili %>%
-  select(case_id, sample_type, date_of_case_detection, health_facility_name, camp, block, upazila, laboratory_result, nationality) %>% 
+  select(case_id, sample_type, date_of_case_detection, health_facility_name=health_facility_name_sample_collection_site, camp=camp_patient_s_residence, upazila, laboratory_result, nationality) %>% 
   clean_data() %>% 
   filter(laboratory_result %in% c('positive', 'negative')) %>% 
   filter(nationality=='fdmn') %>% 
@@ -100,8 +100,8 @@ activity_2week_df <- cases_week_camp %>%
   select(-camp_number) %>% 
   clean_names() %>% 
     #mutate(across(contains('positivity'), percent(.,accuracy=.1)))
-  mutate(x38_positivity=scales::percent(x38_positivity, accuracy=.1),
-         x39_positivity=scales::percent(x39_positivity, accuracy=.1))
+  mutate(x46_positivity=scales::percent(x46_positivity, accuracy=.1),
+         x47_positivity=scales::percent(x47_positivity, accuracy=.1))
   
   
   # activity_2week_df %>% 
@@ -113,12 +113,12 @@ activity_2week_df <- cases_week_camp %>%
 camp_test_fortnight_flex <- flextable(activity_2week_df) %>% 
   autofit() %>% 
   set_header_labels(camp_of_residence = "Camp",
-                    x38_cases = "Cases (Week 38)",
-                    x38_tests = "Tests (Week 38)",
-                    x38_positivity = "% positive (Week 38)",
-                    x39_cases = "Cases (Week 39)",
-                    x39_tests = "Tests (Week 39)",
-                    x39_positivity = "% positive (Week 39)") %>% 
+                    x46_cases = "Cases (Week 46)",
+                    x46_tests = "Tests (Week 46)",
+                    x46_positivity = "% positive (Week 46)",
+                    x47_cases = "Cases (Week 47)",
+                    x47_tests = "Tests (Week 47)",
+                    x47_positivity = "% positive (Week 47)") %>% 
   bold(bold = TRUE, part = "header")
 
 # Test summary from last week ---------------------------------------------

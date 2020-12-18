@@ -156,7 +156,7 @@ Week_CampFlex_Report<-autofit(Week_CampFlex)
 # Tests in the last week - FDMN
 #Filter for tests done last week 
 ARI_ILI_Pos_ThisWeek_FDMN<- ARI_ILI_Pos %>% 
-  filter(Week == ThisWeek) %>%
+  filter(Week == ThisWeek) %>% 
   filter(nationality == "FDMN")
 
 # Test in the last week and positivity in the last week

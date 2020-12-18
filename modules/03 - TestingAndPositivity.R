@@ -19,7 +19,7 @@ library(purrr)
 library(scales)
 
 ARI_ILI_Pos <-ari_ili %>%
-  select(case_id, sample_type, date_of_case_detection, health_facility_name, camp, block, upazila, laboratory_result, nationality) %>% 
+  select(case_id, sample_type, date_of_case_detection, health_facility_name=health_facility_name_sample_collection_site, camp=camp_patient_s_residence, upazila, laboratory_result, nationality) %>% 
   filter(laboratory_result %in% c('Positive', 'Negative')) %>% 
   filter(nationality=='FDMN') %>% 
   filter(!sample_type %in% c('Follow-up', 'Humanitarian Worker')) %>% 
@@ -168,3 +168,41 @@ first_case_fdmn_month <- month(first_case_fdmn, label=TRUE, abbr=FALSE)
 
 first_case_fdmn_day_month <- sprintf("the %s of %s", first_case_fdmn_day, first_case_fdmn_month)
 
+
+###Median age of test
+
+week_test_df <- ari_ili %>%  
+  clean_data() %>% 
+  filter(!laboratory_result %in% c('n_a','not_done')) %>% 
+  filter(nationality=='fdmn') %>% 
+  filter(!sample_type %in% c('follow_up', 'humanitarian_worker')) %>% 
+  #filter(date_of_case_detection>=ymd('2020-05-01')) %>% 
+  mutate(week=isoweek(date_of_case_detection)) %>% 
+  #mutate(week=date2week(date_of_case_detection,week_start = "sun", floor_day = TRUE)) %>% 
+  select(week,date_of_case_detection, laboratory_result, age) %>% 
+  filter(week>19) %>% 
+  #mutate(week=factor(week, levels=unique(week))) %>% 
+  filter(laboratory_result %in% c('positive', 'negative')) %>% 
+  mutate(age=as.numeric(as.character(unlist(age))))
+
+tests_age_gph <- ggplot(week_test_df, aes(x=week, y=age, group=factor(week))) + 
+  #geom_jitter(colour="lightblue", alpha=0.5, width=0.1) +
+  #geom_point(stat="summary", fun.y="mean") + 
+  geom_boxplot(alpha = 0.80) +
+  #geom_errorbar(stat="summary", fun.data="mean_se", fun.args = list(mult = 1.96), width=0) +
+  labs(x="Week", y="Age (median with interquartile range)") +
+  theme_bw() +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  scale_y_continuous(breaks=seq(0,100,10))
+
+tests_age_overall <- week_test_df %>% summarize(median = median(age,na.rm=TRUE), 
+                                                minimum = min(age,na.rm=TRUE), 
+                                                maximum = max(age,na.rm=TRUE))
+  
+tests_age_thisweek <- week_test_df %>% filter(week==ThisWeek) %>%  summarize(median = median(age,na.rm=TRUE), 
+                                                                             minimum = min(age,na.rm=TRUE), 
+                                                                             maximum = max(age,na.rm=TRUE))
+
+tests_age_lastweek <- week_test_df %>% filter(week==LastWeek) %>% summarize(median = median(age,na.rm=TRUE), 
+                                                                            minimum = min(age,na.rm=TRUE), 
+                                                                            maximum = max(age,na.rm=TRUE))
