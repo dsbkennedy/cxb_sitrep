@@ -30,7 +30,11 @@ camps_to_include <- cases_week_camp %>% select(camp_of_residence) %>%  distinct(
 ## Tests by location
 library(linelist)
 ARI_ILI_df <-ari_ili %>%
+<<<<<<< HEAD
   select(case_id, sample_type, date_of_case_detection,date_of_lab_result_received, health_facility_name=health_facility_name_sample_collection_site, camp=camp_patient_s_residence, upazila, laboratory_result, nationality) %>% 
+=======
+  select(case_id, sample_type, date_of_case_detection, health_facility_name=health_facility_name_sample_collection_site, camp=camp_patient_s_residence, upazila, laboratory_result, nationality) %>% 
+>>>>>>> e577dec3173b0f632ab79191466c5d6c183c850e
   clean_data() %>% 
   filter(laboratory_result %in% c('positive', 'negative')) %>% 
   filter(nationality=='fdmn') %>% 
@@ -105,20 +109,35 @@ activity_2week_df <- cases_week_camp %>% mutate(camp_of_residence=as.character(c
   arrange(camp_number) %>% 
   select(-camp_number) %>% 
   clean_names() %>% 
+<<<<<<< HEAD
   mutate(x15_positivity=scales::percent(x15_positivity, accuracy=.1),
          x16_positivity=scales::percent(x16_positivity, accuracy=.1))
+=======
+    #mutate(across(contains('positivity'), percent(.,accuracy=.1)))
+  mutate(x46_positivity=scales::percent(x46_positivity, accuracy=.1),
+         x47_positivity=scales::percent(x47_positivity, accuracy=.1))
+>>>>>>> e577dec3173b0f632ab79191466c5d6c183c850e
   
   
 
 camp_test_fortnight_flex <- flextable(activity_2week_df) %>% 
   #autofit() %>% 
   set_header_labels(camp_of_residence = "Camp",
+<<<<<<< HEAD
                     x15_cases = "Cases (Week 15)",
                     x15_tests = "Tests (Week 15)",
                     x15_positivity = "% positive (Week 15)",
                     x16_cases = "Cases (Week 16)",
                     x16_tests = "Tests (Week 16)",
                     x16_positivity = "% positive (Week 16)") %>% 
+=======
+                    x46_cases = "Cases (Week 46)",
+                    x46_tests = "Tests (Week 46)",
+                    x46_positivity = "% positive (Week 46)",
+                    x47_cases = "Cases (Week 47)",
+                    x47_tests = "Tests (Week 47)",
+                    x47_positivity = "% positive (Week 47)") %>% 
+>>>>>>> e577dec3173b0f632ab79191466c5d6c183c850e
   bold(bold = TRUE, part = "header")
 
 # Test summary from last week ---------------------------------------------

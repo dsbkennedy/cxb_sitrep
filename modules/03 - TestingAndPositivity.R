@@ -179,6 +179,7 @@ week_test_df <- ari_ili %>%
   filter(!laboratory_result %in% c('n_a','not_done')) %>% 
   filter(nationality=='fdmn') %>% 
   filter(!sample_type %in% c('follow_up', 'humanitarian_worker')) %>% 
+<<<<<<< HEAD
   mutate(week=isoweek(date_of_case_detection)) %>% 
  # filter(week <= ThisWeek | year==2020) %>% 
   mutate(yearweek=yearweek(date_of_case_detection)) %>% 
@@ -186,16 +187,32 @@ week_test_df <- ari_ili %>%
   #mutate(week=date2week(date_of_case_detection,week_start = "sun", floor_day = TRUE)) %>% 
   select(yearweek,week,date_of_case_detection, laboratory_result, age) %>% 
   #filter(week>19) %>% 
+=======
+  #filter(date_of_case_detection>=ymd('2020-05-01')) %>% 
+  mutate(week=isoweek(date_of_case_detection)) %>% 
+  #mutate(week=date2week(date_of_case_detection,week_start = "sun", floor_day = TRUE)) %>% 
+  select(week,date_of_case_detection, laboratory_result, age) %>% 
+  filter(week>19) %>% 
+>>>>>>> e577dec3173b0f632ab79191466c5d6c183c850e
   #mutate(week=factor(week, levels=unique(week))) %>% 
   filter(laboratory_result %in% c('positive', 'negative')) %>% 
   mutate(age=as.numeric(as.character(unlist(age))))
 
+<<<<<<< HEAD
 tests_age_gph <- ggplot(week_test_df, aes(x=yearweek, y=age, group=factor(yearweek))) + 
   #geom_jitter(colour="lightblue", alpha=0.5, width=0.1) +
   geom_point(stat="summary", fun="mean") + 
   #geom_boxplot(alpha = 0.80) +
   geom_errorbar(stat="summary", fun.data="mean_se", fun.args = list(mult = 1.96), width=0) +
   labs(x="Week", y="Age (mean with 95% CI)") +
+=======
+tests_age_gph <- ggplot(week_test_df, aes(x=week, y=age, group=factor(week))) + 
+  #geom_jitter(colour="lightblue", alpha=0.5, width=0.1) +
+  #geom_point(stat="summary", fun.y="mean") + 
+  geom_boxplot(alpha = 0.80) +
+  #geom_errorbar(stat="summary", fun.data="mean_se", fun.args = list(mult = 1.96), width=0) +
+  labs(x="Week", y="Age (median with interquartile range)") +
+>>>>>>> e577dec3173b0f632ab79191466c5d6c183c850e
   theme_bw() +
   theme(axis.text.x=element_text(angle=45, hjust=1)) +
   scale_y_continuous(breaks=seq(0,100,10))
