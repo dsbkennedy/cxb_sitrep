@@ -16,14 +16,12 @@
 
 -   The following camps reported cases in week `r LastWeek` or `r ThisWeek`
 
-
 ```{r}
-camp_test_fortnight_flex %>% 
-  add_header_lines(., values = "Table 1: Number of cases, tests and % COVID-19 positive tests for camps reporting at least 1 case in the last 2 weeks")
+cases_tests_table
 ```
 
 ## Testing - week `r LastWeek` & `r ThisWeek`
 
--   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(Week==ThisWeek) %>%  pull(total_tests)`** samples were tested. Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(Week==LastWeek) %>%  pull(total_tests)`** samples were tested.
+-   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(week==ThisWeek) %>%  pull(total_tests)`** samples were tested. Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(week==LastWeek) %>%  pull(total_tests)`** samples were tested.
 
--   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(Week==ThisWeek) %>%  pull(positivity)`** of samples were positive for COVID-19. Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(Week==LastWeek) %>%  pull(positivity)`** of samples were positive for COVID-19.
+-   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(week==ThisWeek) %>%  pull(positivity)`** of samples were positive for COVID-19. Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(week==LastWeek) %>%  pull(positivity)`** of samples were positive for COVID-19.
