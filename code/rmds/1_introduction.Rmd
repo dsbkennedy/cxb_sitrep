@@ -1,0 +1,8 @@
+# Introduction
+
+This situation report covers the surveillance of **`r params$organism`** in Cox's Bazar Refugee Camps, Bangladesh.
+
+-   This report was run on **`r format(Sys.time(), '%d %B, %Y')`**.
+-   **The data in this report includes the Forcibly Displaced Myanmar Nationals (FDMN)/Rohingya Refugee population ONLY**.
+-   FDMN data are from the Cox's Bazar - IEDCR Field Lab.
+-   Data for the Host community & for all of Bangladesh are in the Appendix.

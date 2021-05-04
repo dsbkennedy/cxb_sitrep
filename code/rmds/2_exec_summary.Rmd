@@ -1,0 +1,22 @@
+# Executive summary
+
+-   As of **(week `r ThisWeek`) (`r report_timeperiod`)** there are **`r total_cases`** confirmed cases of `r params$organism`.
+
+-   This week (week `r ThisWeek`), there have been **`r cases_week_camp %>% filter(week==ThisWeek) %>% ungroup() %>%  summarise(cases=sum(cases,na.rm=TRUE)) %>% pull(cases)`** confirmed cases.
+
+-   As of this week (week `r ThisWeek`), **`r CampsWithCases`**/34 camps have confirmed cases.
+
+-   As of this week (week `r ThisWeek`), there have been a total of **`r deathscount` deaths** from COVID-19.
+
+-   As of this week (week `r ThisWeek`), the **case fatality rate** is **`r  Outcome_Proportions %>% clean_names() %>% filter(x30_day_outcome =='Death') %>% pull(percentage)`**.
+
+-   As of this week (week `r ThisWeek`), the incidence is **`r AR100k` per 100,000** people.
+
+-   As of this week (week `r ThisWeek`), the overall positivity of all samples tested in FDMN/Rohingya Refugees was **`r FDMNOverallPosNum`%**.
+
+-   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(week==ThisWeek) %>%  pull(total_tests)`** samples were tested. The test positivity was **`r camp_test_fortnight %>% filter(week==ThisWeek) %>%  pull(positivity)`**.
+
+```{r, fig.cap="Figure 1: Confirmed cases by week (FDMN/ Rohingya Refugees)", message = FALSE}
+Epicurve
+
+```

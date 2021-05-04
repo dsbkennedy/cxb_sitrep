@@ -1,0 +1,158 @@
+
+
+# Further information
+
+## Case definitions
+
+### Suspected COVID-19
+
+A. Person who meets the clinical AND epidemiological criteria:
+
+-   Clinical criteria:
+
+    Acute onset of fever AND cough; OR,
+
+    Acute onset of ANY THREE OR MORE of the following signs or symptoms:
+
+    -   fever,cough
+
+    -   general weakness/fatigue
+
+    -   headache
+
+    -   myalgia
+
+    -   sore throat
+
+    -   coryza
+
+    -   dyspnoea
+
+    -   anorexia/nausea/vomiting
+
+    -   diarrhoea
+
+    -   altered mental status.
+
+-   Epidemiological criteria
+
+    -   Residing (or working) in an area with high risk of transmission of the virus: for example, closed residential settings and humanitarian settings, such as camp and camp-like settings for displaced persons, any time within the 14 days prior to symptom onset;
+
+        OR,
+
+    -   Residing in or travel to an area with community transmission anytime within the 14 days prior to symptom onset;
+
+        OR,
+
+    -   Working in health setting, including within health facilities and within households, anytime within the 14 days prior to symptom onset.
+
+B. A patient with severe acute respiratory illness (SARI: acute respiratory infection with history of fever or measured fever of ≥ 38 C°; and cough; with onset within the last 10 days; and who requires hospitalization)
+
+### Probable COVID-19
+
+Definition A: A patient who meets clinical criteria above AND is a contact of a probable or confirmed case, or epidemiologically linked to a cluster of cases which has had at least one confirmed case identified within that cluster.
+
+Definition B: A suspected case (described above) with chest imaging showing findings suggestive of COVID-19 disease.
+
+Definition C: A person with recent onset of anosmia (loss of smell) or ageusia (loss of taste)in the absence of any other identified cause.
+
+Definition D: Death, not otherwise explained, in an adult with respiratory distress preceding death AND who was a contact of a probable or confirmed case or epidemiologically linked to a cluster which has had at least one confirmed case identified within that cluster.
+
+### Confirmed COVID-19
+
+A person with laboratory confirmation of COVID-19 infection, irrespective of clinical signs and symptoms.
+
+\newpage
+
+#### Appendix 1 - Tests & cases in Cox's Bazar host population
+
+```{r}
+
+Host_Test_graph <- test_nationality %>% 
+  filter(name %in% c('host', 'host_positive')) %>% 
+  mutate(week=isoweek(date_format)) %>% 
+    mutate(year=year(date_format)) %>% 
+  select(year,week,name,date_format,value) %>% 
+  filter(week <= ThisWeek | year==2020) %>% 
+  mutate(yearweek=yearweek(date_format)) %>% 
+  group_by(yearweek,name) %>% 
+  summarise(value=sum(value,na.rm=TRUE)) %>% 
+  mutate(name_fac=factor(name, levels = c('host', 'host_positive'),
+                         labels=c('Tests', 'Cases'))) %>% 
+  ggplot(., aes(x=yearweek, y=value, fill=name_fac)) +
+  geom_bar(stat="identity") +
+    scale_fill_manual(values=c("#ED7D31","#4472C4")) +
+        scale_x_yearweek(date_breaks = "8 week",) +
+      #scale_x_continuous(breaks=breaks_pretty(n = 8)) +
+ # scale_x_continuous(limits=c(10,ThisWeek)) +
+  # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
+  #              date_labels = '%d-%m') +
+  labs(caption = "Data source: Cox’s Bazar - IEDCR Field Lab",
+       x="Week",
+       y= "Number",
+       fill="") +
+  theme_minimal()
+
+
+
+Host_Test_graph
+```
+
+#### Appendix 2 - Tests & cases in Bangladesh
+
+```{r}
+
+#Bangladesh data from Our World In Data
+bgd_data <- read.csv('https://covid.ourworldindata.org/data/owid-covid-data.csv') %>% 
+  filter(iso_code=='BGD') %>%        
+  mutate(date_format=ymd(date)) %>% 
+  select(date=date_format, new_tests,new_cases,new_deaths,population) %>% 
+  mutate(population_group='Bangladesh') %>% 
+    mutate(week=isoweek(date)) %>% 
+    mutate(year=year(date)) %>% 
+  #select(year,week,name,date_format,value) %>% 
+  filter(week <= ThisWeek | year==2020) %>% 
+  mutate(yearweek=yearweek(date)) 
+  #mutate(week=isoweek(date)) %>% 
+  #filter(week<=ThisWeek)
+
+bgd_graph <- bgd_data %>% 
+  select(yearweek, new_cases, new_tests) %>% 
+  group_by(yearweek) %>% 
+  summarise(cases=sum(new_cases,na.rm=TRUE),
+            tests=sum(new_tests,na.rm=TRUE)) %>% 
+  pivot_longer(-yearweek) %>% 
+  mutate(name_fac=factor(name, levels = c('tests', 'cases'),
+                         labels=c('Tests', 'Cases'))) %>% 
+  ggplot(., aes(x=yearweek, y=as.numeric(value), fill=name_fac)) +
+  geom_bar(stat="identity") +
+      scale_fill_manual(values=c("#ED7D31","#4472C4")) +
+          scale_x_yearweek(date_breaks = "8 week",) +
+     # scale_x_continuous(breaks=breaks_pretty(n = 8)) +
+  # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
+  #              date_labels = '%d-%m', limits=c(ymd('2020-03-17'), today())) +
+  labs(caption = "Data source: IEDCR (https://covid19bd.idare.io/)",
+       x="Week",
+       y= "Number",
+       fill="") +
+  theme_minimal()
+
+bgd_graph  
+```
+
+\newpage
+
+#### Appendix 3 - Cases per 100,000 by household location
+
+```{r, fig.height=10}
+cases_map
+```
+
+\newpage
+
+#### Appendix 4 - Tests per 100,000 by household location
+
+```{r, fig.height=10}
+tests_map
+
+```

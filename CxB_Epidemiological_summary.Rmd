@@ -1,14 +1,13 @@
 ---
 title: "Cox’s Bazar Rohingya Camps - Epidemiological Summary"
+output:
+  word_document:
+    fig_height: 3
+    fig_width: 8
+    reference_docx: epi_template.docx
+  pdf_document: default
+  html_document: default
 params:
-  # subtitle:
-  #   label: "Subtitle"
-  #   input: text
-  #   value: "Confidential and Sensitive"
-  # date:
-  #   label: "Date produced"
-  #   input: text
-  #   value: !r paste0("Created on ", format(Sys.time(), '%d %B, %Y'))
   organism:
     label: "Organism"
     input: text
@@ -17,20 +16,9 @@ params:
     label: "Response type"
     input: text
     value: "standard national"
-output:
-  word_document:
-    fig_height: 3
-    fig_width: 8
-    reference_docx: PHE_template.docx
-  pdf_document: default
-  html_document: default
-editor_options: 
-  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-
-#knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, error=FALSE)
 
 options(knitr.kable.NA = "Unknown")
@@ -38,349 +26,118 @@ options(knitr.kable.NA = "Unknown")
 
 ```{r load libraries/functions, include=FALSE, message = FALSE}
 
-library(magrittr)
-library(tidyverse)
-library(lubridate)
-library(readxl)
-library(sf)
-library(epitrix)
-library(dplyr)
-library(kableExtra)
-library(EpiCurve) 
-library(epitools) 
-library(flextable)
-library(officer)
-library(coarseDataTools)
-library(janitor)
-library(here)
-library(googlesheets4)
-library(purrr)
-library(scales)
-library(linelist)
-library(tidyr)
-library(plotrix)
+pkgs <- c('tidyverse'	,'lubridate'	,'readxl'	,'epitrix'	,'dplyr'	,'kableExtra'	,'EpiCurve'	,'epitools'	,'flextable'	,'officer'	,'coarseDataTools'	,'janitor'	,'here'	,'googlesheets4'	,'purrr'	,'scales'	,'linelist'	,'tidyr'	,'plotrix'	,'tsibble'	,'tmap'	,'here'	,'purrr'	,'linelist'	,'ggthemes'	,'gt'	,'RcppRoll'	,'scales'	,'patchwork'	,'flexdashboard'	,'googlesheets4','table1'	,'ggpubr'	,'tmap'	,'htmltools'	,'magrittr'	,'mapproj'	,'sf'	,'ggplot2', 'glue')
 
+pacman::p_load(pkgs, character.only = T)
 
-source(here('modules', 'Login.R'))
-
-# Manually load in the UNHCR data on population 
-population<-read_excel("data/20200630_population_FDMN.xlsx")
-
-#Define weeks
-ThisWeek<- isoweek(today()) -1
-LastWeek <- isoweek(today())-2
-
-
-first_date_of_week <- function(year, week){
-  strptime(paste(year, week, 1), format = "%Y %W %u")
-}
-
-append_date_suffix <- function(dates){
-  dayy <- day(dates)
-  suff <- case_when(dayy %in% c(11,12,13) ~ "th",
-                    dayy %% 10 == 1 ~ 'st',
-                    dayy %% 10 == 2 ~ 'nd',
-                    dayy %% 10 == 3 ~'rd',
-                    TRUE ~ "th")
-  paste0(dayy, suff)
-}
-
-first_date <- ymd(first_date_of_week(2020,ThisWeek-1))
-last_date <- ymd(first_date_of_week(2020,ThisWeek-1))+6
-
-first_day <- append_date_suffix(first_date)
-first_month <- month(first_date, label=TRUE, abbr=FALSE)
-
-last_day <- append_date_suffix(last_date)
-last_month <- month(last_date, label=TRUE, abbr=FALSE)
-
-report_timeperiod <- sprintf("%s %s - %s %s", first_day, first_month, last_day, last_month)
-
+source(here('code','modules', '0_setup.R'))
 ```
 
 ```{r Cleaning file, include=FALSE, message = FALSE}
-
 # CLEANING
-source(here('modules',"01 - CleaningScript2.R"))
+#source(here('code','modules',"01 - CleaningScript2.R"))
+source(here('code','modules',"01_all.R"))
 
 ```
 
 ```{r, include=FALSE, message = FALSE}
-
 # SETTTING NUMBERS FOR THE SUMMARY
-source(here('modules',"02 - FigureSetting_Summary.R"))
-
+#source(here('code','modules',"02 - FigureSetting_Summary.R"))
 ```
 
 ```{r, include=FALSE, message = FALSE}
 
 #Testing and positivity
-source(here('modules',"03 - TestingAndPositivity.R"))
+#source(here('code','modules',"03 - TestingAndPositivity.R"))
 
 ```
-<div custom-style = "subtitle">`r params$subtitle`</div>
-<div custom-style = "centre">`r params$date`</div>
 
+::: {custom-style="subtitle"}
+`r params$subtitle`
+:::
+
+::: {custom-style="centre"}
+`r params$date`
+:::
 
 ```{r ageandsexsummary, echo=FALSE, warning=FALSE, message=FALSE}
+#source(here('code','modules',"04 - LastWeek.R"))
+#source(here('code','modules', 'week_counts.R'))
+#source(here('code','modules',"05 - Maps.R"))
 
-source(here('modules',"04 - LastWeek.R"))
-source(here('modules', 'week_counts.R'))
+#source(here('code','modules', '99_moved_code.R'))
+
 ```
 
-# Introduction
-
-This situation report  covers the surveillance of **`r params$organism`** in Cox's Bazar Refugee Camps, Bangladesh. 
-
-* This report was run on **`r format(Sys.time(), '%d %B, %Y')`**.
-* **The data in this reports covers  the Forcibly Displaced Myanmar Nationals (FDMN)/Rohingya Refugee population ONLY**.
-* FDMN data are from the Cox’s Bazar - IEDCR Field Lab.
-* Data for the Host community & for all of Bangladesh are in the Appendix.
-
-# Executive summary
-* As of **(week `r ThisWeek`) (`r report_timeperiod`)** there are  **`r total_cases`** confirmed cases of  `r params$organism`.
-
-* This week (week `r ThisWeek`), there have been **`r cases_week[2]`** confirmed cases.
-* As of this week (week `r ThisWeek`), **`r CampsWithCases`**/34 camps have confirmed cases.
-* As of this week (week `r ThisWeek`), there have been a total of **`r deathscount` deaths** from COVID-19. 
-* As of this week (week `r ThisWeek`), the **case fatality rate** is **`r  Outcome_Proportions %>% clean_names() %>% filter(x30_day_outcome =='Death') %>% pull(percentage)`**.
-* As of this week (week `r ThisWeek`), the incidence is **`r AR100k` per 100,000** people.
-* As of this week (week `r ThisWeek`), the overall positivity of all samples tested in FDMN/Rohingya Refugees was **`r FDMNOverallPosNum`%**.
-
-* This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(Week==ThisWeek) %>%  pull(total_tests)`** samples were tested. The test positivty was  **`r camp_test_fortnight %>% filter(Week==ThisWeek) %>%  pull(positivity)`**.
-
-
-```{r, fig.cap="Figure 1: Confirmed cases by week (FDMN/ Rohingya Refugees)", message = FALSE}
-# Epicurve - overall 
-
-FDMN_Only$count <- 1
-
-summary_week <- as.data.frame(aggregate(FDMN_Only$count, by = list(FDMN_Only$Week), FUN =sum))
-min_week <- min(summary_week$Group.1)
-Epicurve<-
-  ggplot(summary_week, aes(x=Group.1, y=x)) +
-  geom_col(position="stack", fill = "#ED7D31") +
-  theme_minimal() +
-  theme(panel.grid.minor=element_blank(), panel.grid.major=element_blank()) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  theme(axis.text=element_text(size=8),
-        axis.title=element_text(size=8,face="bold")) + 
-  labs(x = "Week", y = "Number of cases") +
-  scale_fill_manual(values=c("#4472C4")) +
-  coord_cartesian(xlim = c(min_week, ThisWeek))  +
-      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
-  #scale_x_continuous(limits = c(min_week, ThisWeek)) %>% 
-  #scale_x_continuous(limits=c(min_week, ThisWeek)) %>% 
- # ggtitle("Figure 1: Confirmed cases by specimen collection week (FDMN/ Rohingya Refugees)") + 
-  theme(plot.title = element_text(size=10))
-
-Epicurve
-
+```{r, child=c(here::here("code","rmds","1_introduction.Rmd"), here::here("code","rmds","2_exec_summary.Rmd"))}
 ```
 
 # Summary of cases - week `r LastWeek` and week `r ThisWeek`
 
-* There have been **`r cases_week[2]`** new cases in the FDMN/Rohingya Refugee population in week `r ThisWeek`. In week `r LastWeek` there were  **`r cases_week[1]`** cases.
+-   There have been **`r cases_week_camp %>% filter(week==ThisWeek) %>% ungroup() %>%  summarise(cases=sum(cases,na.rm=TRUE)) %>% pull(cases)`** new cases in the FDMN/Rohingya Refugee population in week `r ThisWeek`. In week `r LastWeek` there were **`r cases_week_camp %>% filter(week==LastWeek) %>% ungroup() %>%  summarise(cases=sum(cases,na.rm=TRUE)) %>% pull(cases)`** cases.
 
 ## Age of cases
-* The median age of the cases this week (week `r ThisWeek`) was `r MedianAgeThisWeek` years old. 
-* The median age of the cases last week (week `r LastWeek`) was `r MedianAgeLastWeek` years old.
+
+-   The median age of the cases this week (week `r ThisWeek`) was `r MedianAgeThisWeek` years old.
+-   The median age of the cases last week (week `r LastWeek`) was `r MedianAgeLastWeek` years old.
 
 ## Sex breakdown
-* This  week (week `r ThisWeek`) there were **`r ThisWeekMale`** male (`r Male_Prop_ThisWeek`%) and **`r ThisWeekFemale`**  female (`r Female_Prop_ThisWeek`%) cases.
-* Last  week (week `r LastWeek`) there were **`r LastWeekMale`** male (`r Male_Prop_Week`%) and **`r LastWeekFemale`**  female (`r Female_Prop_Week`%) cases. 
+
+-   This week (week `r ThisWeek`) there were **`r ThisWeekMale`** male (`r Male_Prop_ThisWeek`%) and **`r ThisWeekFemale`** female (`r Female_Prop_ThisWeek`%) cases.
+-   Last week (week `r LastWeek`) there were **`r LastWeekMale`** male (`r Male_Prop_Week`%) and **`r LastWeekFemale`** female (`r Female_Prop_Week`%) cases.
 
 ## Location of cases
 
-
-* The following camps reported cases in week `r LastWeek` or `r ThisWeek` 
-
-\newline
-
+-   The following camps reported cases in week `r LastWeek` or `r ThisWeek`
 
 ```{r}
-camp_test_fortnight_flex %>% 
-  add_header_lines(., values = "Table 1: Number of cases, tests and % COVID-19 positive tests for camps reporting at least 1 case in the last 2 weeks")
+cases_tests_table
 ```
-
-<!--`r camp_test_fortnight_flex` 
-<br>
-*This table includes only **positive** and **negative** results for weeks `r LastWeek` & `r ThisWeek`. Follow-up tests are not included.
---->
 
 ## Testing - week `r LastWeek` & `r ThisWeek`
 
-* This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(Week==ThisWeek) %>%  pull(total_tests)`** samples were tested.Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(Week==LastWeek) %>%  pull(total_tests)`** samples were tested. 
+-   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(week==ThisWeek) %>%  pull(total_tests)`** samples were tested. Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(week==LastWeek) %>%  pull(total_tests)`** samples were tested.
 
-* This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(Week==ThisWeek) %>%  pull(positivity)`** samples were positive for COVID-19.Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(Week==LastWeek) %>%  pull(positivity)`** samples were positive for COVID-19.
-
+-   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(week==ThisWeek) %>%  pull(positivity)`** of samples were positive for COVID-19. Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(week==LastWeek) %>%  pull(positivity)`** of samples were positive for COVID-19.
 
 # Descriptive epidemiology - FDMN/Rohingya refugee cases
 
-* The first test in the FDMN/Rohingya population was on `r first_test_fdmn_day_month` (Week `r first_test_fdmn_week`).
-* The first confirmed case in the FDMN/Rohingya population was on `r first_case_fdmn_day_month` (Week `r first_case_fdmn_week`).
+-   The first test in the FDMN/Rohingya population was on `r first_test_fdmn_day_month` (Week `r first_test_fdmn_week`).
+-   The first confirmed case in the FDMN/Rohingya population was on `r first_case_fdmn_day_month` (Week `r first_case_fdmn_week`).
 
 ## Age and sex breakdown
 
-* The overall median age of cases is **`r medianage`** (range **`r RangeLow` - `r RangeUpper`** years old).
-* In total, there have been **`r Male`** (`r Male_Prop`%) male cases and **`r Female`** (`r Female_Prop`%) female cases.
+-   The overall median age of cases is **`r medianage`** (range **`r RangeLow` - `r RangeUpper`** years old).
+-   There have been **`r Male`** (`r Male_Prop`%) male cases and **`r Female`** (`r Female_Prop`%) female cases.
 
-<br>
-<br>
+<br> <br>
 
-```{r, fig.cap="Figure 2: Confirmed cases by week and sex (FDMN/ Rohingya Refugees)"} 
-
-summary_Sex <- FDMN_Only %>% 
-  count(Week, sex) %>% 
-  mutate(sex=case_when(sex=='M' ~ 'Male',
-                       sex=='F' ~ 'Female'))
-
-EpicurveSex<-
-  ggplot(summary_Sex, aes(x=Week, y=n, fill=sex)) +
-  geom_col() +
-  theme_minimal() +
-  theme(panel.grid.minor=element_blank(), panel.grid.major=element_blank()) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  theme(axis.text=element_text(size=8),
-        axis.title=element_text(size=8,face="bold")) + 
-    scale_fill_brewer(palette="Dark2", direction=-1) +
-      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
-  labs(x = "Week", y = "Number of cases", fill='') +
-  #ggtitle("Figure 2: Confirmed cases by specimen collection week (FDMN/ Rohingya Refugees) by sex") + 
-  theme(plot.title = element_text(size=10))
-  #scale_fill_discrete(name="")
-
+```{r, fig.cap="Figure 2: Confirmed cases by week and sex (FDMN/ Rohingya Refugees)"}
 EpicurveSex
-
 ```
 
-
-<br>
-<br>
+<br> <br>
 
 ### Age and sex pyramid - confirmed cases FDMN/Rohingya refugee
 
 ```{r ageandsexplot, fig.cap="Figure 3: Confirmed cases by age group and sex (FDMN/ Rohingya Refugees)", echo=FALSE, warning=FALSE, message=FALSE}
-
-# AgeSex_df <- FDMN_Only %>%  mutate(sex=case_when(sex=='M' ~ 'Male',
-#                        sex=='F' ~ 'Female'))
-# AgeSex<- AgeSex_df %>% 
-#     mutate(age_grp=cut(age_in_years, breaks=c(-Inf,18,59, +Inf), 
-#                        labels=c('Under 18', '18 to 59' ,'60 and over'))) %>% 
-# ggplot(.,aes(x=age_grp, fill=sex)) +
-#             geom_bar(data=subset(AgeSex_df,sex=="Female"), color="white", width=1) +
-#             geom_bar(data=subset(AgeSex_df,sex=="Male"), aes(y=..count..*(-1)), color="white", width=1) +
-#             theme_minimal() +
-#             labs(x='Age group', y='Number of cases') +
-#             scale_y_continuous(breaks=seq(-48,48,8),labels=abs(seq(-48,48,8))) +
-#             #scale_x_discrete(limits=levels(.$agerp)) +
-#             geom_hline(yintercept=0) +
-#       scale_fill_brewer(palette="Dark2", direction=-1) +
-#             coord_flip() +
-#            theme(panel.grid.minor=element_blank(), panel.grid.major=element_blank(), legend.title=element_blank())
-
-FDMN_df <- FDMN_Only %>%  mutate(sex=case_when(sex=='M' ~ 'Male',
-                                                   sex=='F' ~ 'Female')) %>% 
-    mutate(age_grp=cut(age_in_years, breaks=c(-Inf,18,59, +Inf), 
-                       labels=c('Under 18', '18 to 59' ,'60 and over')))
-
-AgeSex <-    ggplot(FDMN_df,aes(x=age_grp, fill=sex)) +
-    geom_bar(data=subset(FDMN_df,sex=="Female"), color="white", width=1) +
-    geom_bar(data=subset(FDMN_df,sex=="Male"), aes(y=..count..*(-1)), color="white", width=1) +
-    theme_minimal() +
-    labs(x='Age group', y='Number of cases') +
-    scale_y_continuous(breaks=seq(-48,48,8),labels=abs(seq(-48,48,8))) +
-    #scale_x_discrete(limits=levels(.$agerp)) +
-    geom_hline(yintercept=0) +
-    scale_fill_brewer(palette="Dark2", direction=-1) +
-    coord_flip() +
-    theme(panel.grid.minor=element_blank(), panel.grid.major=element_blank(), legend.title=element_blank())
-  
-
 AgeSex
 ```
 
-### Cases per 100,000 by age group 
+### Cases per 100,000 by age group
 
 ```{r}
-population_agegrp <- readxl::read_xlsx(here('data','block_population.xlsx'), sheet='Final', skip=1) %>% 
-  clean_names %>%  
-  clean_data() %>% 
-  filter(grepl('total', camp)) %>% 
-  filter(!camp=='grand_total') %>% 
-  select(-block) %>% 
-  mutate(across(c(infant_below_1:x16), as.numeric)) %>% 
-  mutate(age_0_18 = rowSums(.[4:11])) %>% 
-  mutate(age_18_59 = rowSums(.[12:13])) %>% 
-  mutate(age_over60 = rowSums(.[14:15])) %>% 
-  select(camp, contains('total'), contains('age')) %>% 
-  mutate(camp=gsub('_total', '', camp)) %>% 
-  mutate(camp=gsub('camp_', '', camp)) %>% 
-  mutate(camp=trimws(camp))  %>% 
-  select(camp, contains('age')) %>% 
-  summarise(age_0_18=sum(age_0_18,na.rm=TRUE),
-            age_18_59=sum(age_18_59,na.rm=TRUE),
-            age_over60=sum(age_over60,na.rm=TRUE)) %>% 
-  mutate(dummy=1) %>% 
-  pivot_longer(-dummy) %>% 
-  mutate(age_grp=case_when(name=='age_0_18' ~ 'Under 18',
-                        name=='age_18_59' ~ '18 to 59',
-                        name=='age_over60' ~ '60 and over')) %>% 
-  select(-c(dummy,name))
-
-cases_agegrp <- FDMN_Only %>% 
-  mutate(age_grp=cut(age_in_years, breaks=c(-Inf,18,59, +Inf), labels=c('Under 18', '18 to 59' ,'60 and over'))) %>% 
-  mutate(week=isoweek(date_of_case_detection)) %>% 
-  count(week,age_grp, .drop=FALSE) %>% 
-  left_join(population_agegrp, by='age_grp') %>% 
-  mutate(per_capita=(n/value)*100000) %>% 
-  mutate(age_grp=factor(age_grp, levels=c('Under 18', '18 to 59', '60 and over'))) %>% 
-  ggplot(., aes(x=week,y=per_capita, fill=age_grp)) +
-  geom_col(width = 0.5, position = position_dodge(0.7)) +
-  theme_minimal() +
-      scale_fill_brewer(palette="Dark2", direction=-1) +
-  #scale_x_continuous(breaks=breaks_pretty(n = 8), expand = c(.1, .7)) +
-  #scale_x_date(expand = c(.1, .1)) +
-  labs(x="Week", y="Cases 100,000 people", fill='Age group') +
-  scale_y_continuous(breaks=breaks_pretty(n = 5)) +
-  scale_x_continuous(breaks=breaks_pretty(n = 12))
-
 cases_agegrp
 
 ```
-
-
 
 ## Severity of reported cases at presentation
 
 <br>
 
 ```{r, fig.cap="Table 2: Cases by severity of disease at presentation (FDMN/ Rohingya Refugees)"}
-Summary_Severity<- FDMN_Only %>%
-  mutate(severity_of_disease=factor(severity_of_disease, levels=c('Critical', 'Severe', 'Mild/Moderate', 'Asymptomatic', 'Unknown'))) %>% 
-  group_by(severity_of_disease) %>%
-  summarise(count=n())
 
-Summary_Severity<- Summary_Severity%>%
-  adorn_totals("row")
-
-Proportions<-round(Summary_Severity$count/ n_cases_FDMN *100, 1)
-Summary_Severity['Percentage'] = Proportions
-
-Summary_Severity_Flex<-flextable(Summary_Severity)
-
-Table1<-Summary_Severity_Flex %>%
-set_header_labels(severity_of_disease = "Severity of Disease",
-                  count = "Frequency",
-                  Percentage = "Percentage of total (%)") %>%
-bold(bold = TRUE, part = "header")
-Table1<-autofit(Table1)
-Table1<- fontsize(Table1, size = 10, part="all") 
-
-Table1 %>% 
-    add_header_lines(., values = "Table 2: Cases by severity of disease at presentation")
-
-
+case_severity
 ```
 
 <br>
@@ -388,331 +145,68 @@ Table1 %>%
 <br>
 
 ```{r, fig.cap="Figure 4: Case severity at presentation by week (FDMN/ Rohingya Refugees)"}
-# Epidemic curve by severity
-
-summary_severity <- as.data.frame(aggregate(FDMN_Only$count, by = list(FDMN_Only$Week, FDMN_Only$severity_of_disease), FUN =sum))
-
-SeverityEpicurve<-
-  ggplot(FDMN_Only, aes(x=Week, y=count, fill=factor(severity_of_disease, levels=c('Critical', 'Severe', 'Mild/Moderate', 'Asymptomatic', 'Unknown')))) +
-  geom_col(position="stack") +
-  theme_minimal() +
-        scale_fill_brewer(palette="Dark2") +
-    #scale_fill_manual(values=c("yellow", "red", "forest green", "dark orange", "dark grey")) +
-  theme(panel.grid.minor=element_blank(), panel.grid.major=element_blank()) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  theme(axis.text=element_text(size=8),
-        axis.title=element_text(size=8,face="bold")) +
-      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
-  labs(x = "Week", y = "Number of cases", fill='Severity of disease at presentation') 
-  #ggtitle("Figure 3: Confirmed cases last week by severity (FDMN/ Rohingya Refugees)") + theme(plot.title = element_text(size=10))
-
 SeverityEpicurve
 ```
 
-
-
-<br> 
-
-
-## Outcomes at 30 days  
-
-As of Week **`r ThisWeek`** there have been a total of **`r deathscount`** deaths in the FDMN/Rohingya Refugee population from  COVID-19. 
-
 <br>
-<br>
+
+## Outcomes at 30 days
+
+As of Week **`r ThisWeek`** there have been **`r deathscount`** deaths in the FDMN/Rohingya Refugee population from COVID-19.
+
+<br> <br>
 
 ```{r}
-
-#Sum_tab_Severity<-as.data.frame(table(FDMN_Only$`30_day_outcome`, FDMN_Only$severity_of_disease))
-
-
-Sum_tab_Severity <- FDMN_Only %>% 
-  mutate(severity_of_disease=factor(severity_of_disease, levels=c('Critical', 'Severe', 'Mild/Moderate', 'Asymptomatic', 'Unknown'))) %>% 
-  clean_names() %>% 
-  count(x30_day_outcome,severity_of_disease)
-
-names(Sum_tab_Severity) <- c('Outcome at 30 days', 'Severity of disease','count')
-
-
-Sum_tab_Severity <- Sum_tab_Severity %>% 
-  pivot_wider(names_from='Outcome at 30 days', values_from=count, values_fill = 0)
-
-
-Sum_tab_Severity2<-flextable(Sum_tab_Severity)
-Sum_tab_Severity2<-autofit(Sum_tab_Severity2)
-Sum_tab_Severity2<- fontsize(Sum_tab_Severity2, size = 10, part="all") %>% 
-  bold(bold = TRUE, part = "header")
-
-
-
-DeathsAsymp<-Sum_tab_Severity[1,2]
-DeatsCritical <-Sum_tab_Severity[2,2]
-DeathsSevere<-Sum_tab_Severity[4,2]
-DeathsMildModerate	<-Sum_tab_Severity[3,2]
-DeathsUnknown<-Sum_tab_Severity[5,2]
-
-Sum_tab_Severity2  %>% 
-      add_header_lines(., values = "Table 3: Cases by severity of disease at presentation & 30-day outcome")
+severity_outcome
 
 ```
-<br>
-<br>
 
+<br> <br>
 
 ## Location of cases and cases per 100,000
 
-* As of this week (week `r ThisWeek`), **`r CampsWithCases`**/34 camps have confirmed cases.The number of cases per 100,000 people for each camp is displayed on a map in the Appendix.
-
-```{r}
-CasesCampTable<-CasesCamp[order(-CasesCamp$count), ]
-
-CasesCampTable<-flextable(CasesCampTable)
-CasesCampTable<-autofit(CasesCampTable)
-
-# Number of cases by camp
-CasesCamp<- FDMN_Only %>%
-  group_by(camp_of_residence) %>%
-  summarise(count=n())
-
-# Remove the word "camp" from the population data to allow merges
-population<-population %>%
-  mutate(camp_of_residence = gsub("Camp", "", New_Camp_Name))
-
-#triming white space in the dataframe
-population$camp_of_residence<-trimws(population$camp_of_residence, which = c("both", "left", "right"), whitespace = "[ \t\r\n]")
-
-#Merge the CasesCamp and Population data together
-TablePop<- left_join(population, CasesCamp, by="camp_of_residence")
-
-#Generate the rates per 100,000 and add to the Table Pop dataframe
-Ratesper100k<-round(TablePop$count/TablePop$Total_Pop*100000, 1)
-TablePop$Ratesper100k<-Ratesper100k
-
-#Sort from high to low based on rates per 100,000
-TablePopOrdered<-TablePop[order(TablePop$Ratesper100k, na.last= TRUE, decreasing = TRUE),]
-
-
-```
-
-
-```{r Map}
-source(here('modules',"05 - Maps.R"))
-
-cases_map <-    Map_Rates100kData %>% 
-  mutate(camp_label=gsub('Camp ', '', New_Camp_Name)) %>% 
-  mutate(camp_label=gsub('Extension', 'E', camp_label)) %>% 
-  mutate(upazila_upd=case_when(camp_label %in% c('21','22','23') ~ 'Teknaf North',
-                               camp_label %in% c('24', '25', '26', '27', 'Nayapara RC') ~ 'Teknaf South',
-                               TRUE ~ Upazila)) %>% 
-   mutate(upazila_upd=factor(upazila_upd, levels=c('Ukhia', 'Teknaf South', 'Teknaf North'))) %>% 
-  filter(!is.na(Upazila)) %>% 
-  tm_shape() +
-  tm_polygons("Ratesper100k", title="Cases per 100,000", palette="YlGn",textNA = "No reported cases") +
-  tm_facets(by="upazila_upd", nrow=2) +
-   tm_text("camp_label", fontface = "bold") +
-  tm_borders()
-  
-tests_map <- Map_Tests100kData %>% 
-  mutate(camp_label=gsub('Camp ', '', New_Camp_Name)) %>% 
-    mutate(camp_label=gsub('Extension', 'E', camp_label)) %>% 
-  mutate(upazila_upd=case_when(camp_label %in% c('21','22','23') ~ 'Teknaf North',
-                               camp_label %in% c('24', '25', '26', '27', 'Nayapara RC') ~ 'Teknaf South',
-                               TRUE ~ Upazila)) %>% 
-   mutate(upazila_upd=factor(upazila_upd, levels=c('Ukhia', 'Teknaf South', 'Teknaf North'))) %>% 
-  filter(!is.na(Upazila)) %>% 
-  tm_shape() +
-  tm_polygons("tests100k", title="Tests per 100,000", palette="BuPu",textNA = "No reported tests") +
-  tm_facets(by="upazila_upd", nrow=2) +
-   tm_text("camp_label",  fontface = "bold") +
-  tm_borders()
-
-```
-
-
-
+-   As of this week (week `r ThisWeek`), **`r CampsWithCases`**/34 camps have confirmed cases.The number of cases per 100,000 people for each camp is displayed on a map in the Appendix.
 
 # Testing
 
-```{r,warnings=FALSE}
-library(ggplot2)
-library(lubridate)
-
-# test_nationality<-test_nationality %>%
-#   mutate(date_test = ymd(test_nationality$date_format))
-
-# Graph for testing the FDMN population
-
-FDMN_Test_graph<-test_nationality %>% 
-  filter(name %in% c('fdmn', 'fdmn_positive')) %>% 
-  mutate(week=isoweek(date_format)) %>% 
-  filter(week<=ThisWeek) %>% 
-  select(week,name,value) %>% 
-  group_by(week,name) %>% 
-  summarise(value=sum(value,na.rm=TRUE)) %>% 
-  mutate(name_fac=factor(name, levels = c('fdmn', 'fdmn_positive'),
-                         labels=c('Tests', 'Cases'))) %>% 
-  ggplot(., aes(x=week, y=value, fill=name_fac)) +
-  geom_bar(stat="identity") +
-      scale_fill_manual(values=c("#ED7D31","#4472C4")) +
-      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
-  # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
-  #              date_labels = '%d-%m') +
-  labs(caption = "Data source: Cox’s Bazar - IEDCR Field Lab",
-       x="Week",
-       y= "Number",
-       fill="") +
-  theme_minimal()
-
-
-
-```
-
-
-
 ## Positivity
-```{r, include=FALSE}
 
+-   Between Week **`r first_test_fdmn_week`** & Week **`r ThisWeek`**, **`r FDMN_Test`** samples have been tested from the FDMN/Rohingya Refugee population since.
 
-#Making a % positive
-FDMNPos<- TestingClean[, c(1,4,5)]
-FDMNPos$Positivity<-round(FDMNPos$fdmn_positive/FDMNPos$fdmn*100, 1)
-
-FDMNOverallPos<- FDMNPos %>%
-  summarise(total_tests = sum(fdmn, na.rm=TRUE),
-             total_cases = sum(fdmn_positive, na.rm=TRUE)) %>%
-              mutate(Overall_Pos = round(as.numeric(total_cases/total_tests*100), 1))
-
-FDMNOverallPosNum<-FDMNOverallPos$Overall_Pos
-
-FDMNPos$date<-as.Date(FDMNPos$date)
-
-```
-
-* Between Week **`r first_test_fdmn_week`** & Week **`r ThisWeek`**,   **`r FDMN_Test`** samples have been tested from the FDMN/Rohingya Refugee population since.
-
-* `r n_cases_FDMN` **(`r FDMNOverallPosNum`)%** samples  have been positive for COVID-19.
+-   `r n_cases_FDMN` **(`r FDMNOverallPosNum`)%** samples have been positive for COVID-19.
 
 <br>
-
 
 ```{r, fig.cap="Figure 5: Tests and cases by week"}
 
 FDMN_Test_graph
 ```
 
-
 <br>
 
+## Age of samples tested
 
+-   Overall, the median age of samples tested is `r tests_age_overall$median` years old.
+-   This week (week `r ThisWeek`) the median age of samples tested was `r tests_age_thisweek$median` years old.
+-   Last week (week `r LastWeek`) the median age of samples tested was `r tests_age_lastweek$median` years old.
 
+```{r tests_by age , fig.cap="Figure 6: Age of samples tested by week"}
+
+tests_age_gph
+```
 
 ## Location of tests
 
-The number of tests per 100,000 people for each camp is displayed on a map in the Appendix. 
-
-
-\newpage
-
-# Further information 
-  
-## Case definitions
-### Syndromic case definition 
-
-
-An individual with:  
-
-Uncomplicated upper respiratory tract viral infection symptoms such as fever AND at least one of their sign/symptom including:
-
-*	Cough (with or without sputum production)
-*	Shortness of breath (dyspnoea)
-*	Fatigue, malaise, muscle pain, sore throat, dyspnoea, nasal congestion, or headache.  
-
-Patients may also present with diarrhoea, nausea, and vomiting.
-
+The number of tests per 100,000 people for each camp is displayed on a map in the Appendix.
 
 \newpage
 
-##### Appendix 1 - Tests & cases in Cox's Bazar host population
-
-``` {r}
-
-Host_Test_graph <- test_nationality %>% 
-  filter(name %in% c('host', 'host_positive')) %>% 
-  mutate(week=isoweek(date_format)) %>% 
-  select(week,name,value) %>% 
-  filter(week<=ThisWeek) %>% 
-  group_by(week,name) %>% 
-  summarise(value=sum(value,na.rm=TRUE)) %>% 
-  mutate(name_fac=factor(name, levels = c('host', 'host_positive'),
-                         labels=c('Tests', 'Cases'))) %>% 
-  ggplot(., aes(x=week, y=value, fill=name_fac)) +
-  geom_bar(stat="identity") +
-    scale_fill_manual(values=c("#ED7D31","#4472C4")) +
-      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
- # scale_x_continuous(limits=c(10,ThisWeek)) +
-  # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
-  #              date_labels = '%d-%m') +
-  labs(caption = "Data source: Cox’s Bazar - IEDCR Field Lab",
-       x="Week",
-       y= "Number",
-       fill="") +
-  theme_minimal()
-
-Host_Test_graph
-```
-
-##### Appendix 2 - Tests & cases in Bangladesh
-
-
-```{r}
-
-#Bangladesh data from Our World In Data
-bgd_data <- read.csv('https://covid.ourworldindata.org/data/owid-covid-data.csv') %>% 
-  filter(iso_code=='BGD') %>%        
-  mutate(date_format=ymd(date)) %>% 
-  select(date=date_format, new_tests,new_cases,new_deaths,population) %>% 
-  mutate(population_group='Bangladesh') %>% 
-  mutate(week=isoweek(date)) %>% 
-  filter(week<=ThisWeek)
-
-bgd_graph <- bgd_data %>% 
-  select(week, new_cases, new_tests) %>% 
-  group_by(week) %>% 
-  summarise(cases=sum(new_cases,na.rm=TRUE),
-            tests=sum(new_tests,na.rm=TRUE)) %>% 
-  pivot_longer(-week) %>% 
-  mutate(name_fac=factor(name, levels = c('tests', 'cases'),
-                         labels=c('Tests', 'Cases'))) %>% 
-  ggplot(., aes(x=week, y=as.numeric(value), fill=name_fac)) +
-  geom_bar(stat="identity") +
-      scale_fill_manual(values=c("#ED7D31","#4472C4")) +
-      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
-  # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
-  #              date_labels = '%d-%m', limits=c(ymd('2020-03-17'), today())) +
-  labs(caption = "Data source: IEDCR (https://covid19bd.idare.io/)",
-       x="Week",
-       y= "Number",
-       fill="") +
-  theme_minimal()
-
-bgd_graph  
+```{r, child=c(here::here("code","rmds","6_further_info.Rmd"))}
 ```
 
 \newpage
 
-##### Appendix 3 - Cases per 100,000 by household location
-
-
-```{r, fig.height=10}
-cases_map
+```{r, child=c(here::here("code","rmds","7_appendix.Rmd"))}
 ```
 
-\newpage
 
-##### Appendix 4 - Tests per 100,000 by household location
-
-
-```{r, fig.height=10}
-tests_map
-
-```

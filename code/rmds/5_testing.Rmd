@@ -1,0 +1,87 @@
+# Testing
+
+```{r,warnings=FALSE}
+library(ggplot2)
+library(lubridate)
+
+# test_nationality<-test_nationality %>%
+#   mutate(date_test = ymd(test_nationality$date_format))
+
+# Graph for testing the FDMN population
+
+FDMN_Test_graph<-test_nationality %>% 
+  filter(name %in% c('fdmn', 'fdmn_positive')) %>% 
+  mutate(week=isoweek(date_format)) %>% 
+  mutate(year=year(date_format)) %>% 
+  filter(week <= ThisWeek | year==2020) %>% 
+  mutate(yearweek=yearweek(date_format)) %>% 
+  select(yearweek,name,value) %>% 
+  group_by(yearweek,name) %>% 
+  summarise(value=sum(value,na.rm=TRUE)) %>% 
+  mutate(name_fac=factor(name, levels = c('fdmn', 'fdmn_positive'),
+                         labels=c('Tests', 'Cases'))) %>% 
+  ggplot(., aes(x=yearweek, y=value, fill=name_fac)) +
+  geom_bar(stat="identity") +
+      scale_fill_manual(values=c("#ED7D31","#4472C4")) +
+      scale_x_yearweek(date_breaks = "8 week",) +
+#      scale_x_continuous(breaks=breaks_pretty(n = 8)) +
+  # scale_x_date(date_breaks= '30 day', date_minor_breaks = '7 day',
+  #              date_labels = '%d-%m') +
+  labs(caption = "Data source: Cox’s Bazar - IEDCR Field Lab",
+       x="Week",
+       y= "Number",
+       fill="") +
+  theme_minimal()
+
+
+```
+
+## Positivity
+
+```{r, include=FALSE}
+
+
+#Making a % positive
+FDMNPos<- TestingClean[, c(1,4,5)]
+FDMNPos$Positivity<-round(FDMNPos$fdmn_positive/FDMNPos$fdmn*100, 1)
+
+FDMNOverallPos<- FDMNPos %>%
+  summarise(total_tests = sum(fdmn, na.rm=TRUE),
+             total_cases = sum(fdmn_positive, na.rm=TRUE)) %>%
+              mutate(Overall_Pos = round(as.numeric(total_cases/total_tests*100), 1))
+
+FDMNOverallPosNum<-FDMNOverallPos$Overall_Pos
+
+FDMNPos$date<-as.Date(FDMNPos$date)
+
+```
+
+-   Between Week **`r first_test_fdmn_week`** & Week **`r ThisWeek`**, **`r FDMN_Test`** samples have been tested from the FDMN/Rohingya Refugee population since.
+
+-   `r n_cases_FDMN` **(`r FDMNOverallPosNum`)%** samples have been positive for COVID-19.
+
+<br>
+
+```{r, fig.cap="Figure 5: Tests and cases by week"}
+
+FDMN_Test_graph
+```
+
+<br>
+
+## Age of samples tested
+
+-   Overall, the median age of samples tested is `r tests_age_overall$median` years old.
+-   This week (week `r ThisWeek`) the median age of samples tested was `r tests_age_thisweek$median` years old.
+-   Last week (week `r LastWeek`) the median age of samples tested was `r tests_age_lastweek$median` years old.
+
+```{r tests_by age , fig.cap="Figure 6: Age of samples tested by week"}
+
+tests_age_gph
+```
+
+## Location of tests
+
+The number of tests per 100,000 people for each camp is displayed on a map in the Appendix.
+
+\newpage

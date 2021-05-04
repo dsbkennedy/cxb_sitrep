@@ -1,0 +1,29 @@
+# Summary of cases - week `r LastWeek` and week `r ThisWeek`
+
+-   There have been **`r cases_week_camp %>% filter(week==ThisWeek) %>% ungroup() %>%  summarise(cases=sum(cases,na.rm=TRUE)) %>% pull(cases)`** new cases in the FDMN/Rohingya Refugee population in week `r ThisWeek`. In week `r LastWeek` there were **`r cases_week_camp %>% filter(week==LastWeek) %>% ungroup() %>%  summarise(cases=sum(cases,na.rm=TRUE)) %>% pull(cases)`** cases.
+
+## Age of cases
+
+-   The median age of the cases this week (week `r ThisWeek`) was `r MedianAgeThisWeek` years old.
+-   The median age of the cases last week (week `r LastWeek`) was `r MedianAgeLastWeek` years old.
+
+## Sex breakdown
+
+-   This week (week `r ThisWeek`) there were **`r ThisWeekMale`** male (`r Male_Prop_ThisWeek`%) and **`r ThisWeekFemale`** female (`r Female_Prop_ThisWeek`%) cases.
+-   Last week (week `r LastWeek`) there were **`r LastWeekMale`** male (`r Male_Prop_Week`%) and **`r LastWeekFemale`** female (`r Female_Prop_Week`%) cases.
+
+## Location of cases
+
+-   The following camps reported cases in week `r LastWeek` or `r ThisWeek`
+
+
+```{r}
+camp_test_fortnight_flex %>% 
+  add_header_lines(., values = "Table 1: Number of cases, tests and % COVID-19 positive tests for camps reporting at least 1 case in the last 2 weeks")
+```
+
+## Testing - week `r LastWeek` & `r ThisWeek`
+
+-   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(Week==ThisWeek) %>%  pull(total_tests)`** samples were tested. Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(Week==LastWeek) %>%  pull(total_tests)`** samples were tested.
+
+-   This week (week `r ThisWeek`), **`r camp_test_fortnight %>% filter(Week==ThisWeek) %>%  pull(positivity)`** of samples were positive for COVID-19. Last week (week `r LastWeek`), **`r camp_test_fortnight %>% filter(Week==LastWeek) %>%  pull(positivity)`** of samples were positive for COVID-19.
